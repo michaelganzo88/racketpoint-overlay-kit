@@ -12,19 +12,36 @@ public struct ScoreboardOverlayView: View {
     }
 
     public var body: some View {
-        ZStack(alignment: .bottomLeading) {
-            if isVisible {
-                ScoreboardTemplateView(data: data)
-                    .padding(.leading, 16)
-                    .padding(.bottom, 16)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
-            }
+        GeometryReader { geo in
+            // Stessa formula dell'export video: scaleFactor = maxDim / 1920.
+            // Per container landscape maxDim = width.
+            let scale = geo.size.width / 1920.0
+            // Altezza di riferimento proporzionale all'aspect ratio reale del container
+            // (per 16:9 → 1080, ma funziona anche per altri formati).
+            let refH = 1920.0 * geo.size.height / geo.size.width
 
-            if showWatermark {
-                WatermarkView()
-                    .padding(.trailing, 16)
-                    .padding(.bottom, 16)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+            ZStack(alignment: .topLeading) {
+                // Tutto il contenuto viene disposto nello spazio di riferimento 1920×refH,
+                // poi scalato come blocco unico. Padding e dimensioni rimangono
+                // proporzionali indipendentemente dalla risoluzione del container.
+                ZStack {
+                    if isVisible {
+                        ScoreboardTemplateView(data: data)
+                            .padding(.leading, 50)
+                            .padding(.bottom, 50)
+                            .frame(width: 1920, height: refH, alignment: .bottomLeading)
+                    }
+
+                    if showWatermark {
+                        WatermarkView()
+                            .padding(.trailing, 36)
+                            .padding(.bottom, 36)
+                            .frame(width: 1920, height: refH, alignment: .bottomTrailing)
+                    }
+                }
+                .frame(width: 1920, height: refH)
+                .scaleEffect(scale, anchor: .topLeading)
+                .frame(width: geo.size.width, height: geo.size.height, alignment: .topLeading)
             }
         }
         .allowsHitTesting(false)
