@@ -7,7 +7,7 @@ public struct WatermarkView: View {
         Image("RacketPointTVLogo", bundle: .module)
             .resizable()
             .scaledToFit()
-            .frame(height: 80)
+            .frame(height: 120)
             .shadow(color: .black.opacity(0.7), radius: 3, x: 0, y: 1)
             .opacity(0.55)
     }
